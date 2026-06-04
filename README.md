@@ -51,19 +51,23 @@ The brand has data but no intelligence built on top of it. It cannot answer:
 ## 🔬 Scope of Analysis
 
 ### 1. Data Preparation & Feature Engineering (Python)
-- Cleaned raw dataset
-- Built customer-level metrics from scratch (no loyalty score or churn label existed)
-- Engineered 3 key features:
-  - **Dependency Score** — how much a customer relies on discounts
-  - **Value Tier** — High / Mid / Low classification
-  - **Satisfaction Flag** — satisfied or not, based on behavioral signals
+- Cleaned raw dataset (imputed 37 missing Review Ratings with column median)
+- Built customer-level metrics from scratch — no loyalty score, churn label, or timestamps existed
+- Engineered 6 features:
+  - **Promo Dependency Score** — how much a customer relies on discounts (0 / 50 / 100)
+  - **Value Tier** — High / Mid / Low based on tercile split of purchase amount
+  - **Satisfaction Flag** — Review Rating ≥ 4.0 = satisfied
+  - **Loyalty Score (A & B)** — two competing definitions tested; Loyalty B (Frequency × Purchase History) selected over Loyalty A due to lower revenue correlation (avoids circular logic)
+  - **Loyalty Segment** — Champion / Established / Developing / Low
+  - **Organic Buyer Flag** — no discount AND no promo code used
 
 ### 2. Customer Segmentation & Analysis (SQL)
 - Built a structured query layer to answer all 5 key business questions
 - Identified high-value vs. low-value customer profiles
 - Mapped seasonal and geographic demand patterns
+- Identified 413 high-priority promo sunset candidates
 
-### 3. Founder Dashboard (Power BI)
+### 3. Founder Dashboard (HTML)
 Four-panel dashboard built for a non-technical founding team:
 - **Customer Pyramid** — how value is distributed across the customer base
 - **Promo Dependency vs. Retention Rate** — who needs discounts to buy, and who doesn't
@@ -80,9 +84,9 @@ Four-panel dashboard built for a non-technical founding team:
 
 | Tool | Output |
 |------|--------|
-| Python | Cleaned dataset + engineered features |
+| Python | Cleaned dataset + 6 engineered features |
 | SQL | Segmentation queries answering all 5 key questions |
-| Power BI | Four-panel founder dashboard |
+| Dashboard | Four-panel interactive HTML dashboard |
 | Playbook | Promo sunset plan + ideal customer profile |
 | Summary | One-page executive summary |
 
@@ -91,18 +95,18 @@ Four-panel dashboard built for a non-technical founding team:
 ## 📁 Repository Structure
 
 ```
-customer-retention-sql-project/
+sql-driven-retention-strategy/
 ├── data/
-│   └── customer_data.xlsx          # Raw dataset (sample only)
+│   └── customer_data.csv               # Raw dataset
 ├── python/
-│   └── feature_engineering.py      # Feature creation + data cleaning
+│   └── feature_engineering.py          # Feature creation + data cleaning
 ├── sql/
-│   └── segmentation_queries.sql    # All segmentation queries
+│   └── segmentation_queries.sql        # All segmentation queries
 ├── dashboard/
-│   └── customer_dashboard.html     # Interactive live dashboard
+│   └── dashboard.html                  # Interactive live dashboard
 ├── docs/
-│   ├── retention_playbook.md       # Business recommendations
-│   └── executive_summary.md        # One-page findings summary
+│   ├── retention_playbook.md           # Business recommendations
+│   └── executive_summary.md           # One-page findings summary
 └── README.md
 ```
 
@@ -118,21 +122,32 @@ customer-retention-sql-project/
 
 | Tool | Purpose |
 |------|---------|
-| Python (Pandas) | Data cleaning, feature engineering |
+| Python (Pandas, NumPy) | Data cleaning, feature engineering |
 | SQL | Customer segmentation, business queries |
-| Power BI | Interactive dashboard |
+| HTML / CSS / JS | Interactive dashboard |
 | GitHub Pages | Dashboard hosting |
 
 ---
 
 ## 📊 Key Findings
 
-*(Fill this section after your analysis is complete)*
+- **57%** of customers (2,223) are organic buyers — purchasing without any discount or promo code
+- **43%** of customers (1,677) are promo-dependent — retained through continuous incentives
+- **7.2%** of customers (279) are Champions — highest purchase frequency and tenure
+- **413 Champion & Established customers** remain promo-dependent despite strong repeat-purchase signals — recoverable margin leakage
+- **Arizona** is the strongest acquisition opportunity: above-average spend ($66.55), lowest promo dependency (33.8%), highest organic buyer rate (66.2%)
+- **Clothing** has the lowest promo dependency of all categories — strongest organic demand
+- **Outerwear** has the highest promo dependency — consistent with a seasonal entry-point role
+- **Ideal customer profile:** Age 18–30 or 46–60 · PayPal or Credit Card · Bi-Weekly to Weekly purchase cadence · Zero promo dependency
 
-- **X%** of revenue comes from promo-dependent customers
-- **Top value tier** customers have Y times higher repeat purchase rate
-- **Geography insight**: cities like [X] show high organic demand
-- **Ideal customer profile**: [age range], [category preference], [payment method]
+---
+
+## 💡 Strategic Answer
+
+> *"Is the business successfully building a loyal customer base, or is it reliant on continuous promotional activity?"*
+
+**Both are partially true — and that is the opportunity, not the crisis.**  
+The brand has a real organic base (57%) that does not depend on discounts. It also has a promo-dependent cohort that can be graduated off incentives without losing them — if the transition is phased and segment-specific.
 
 ---
 
@@ -142,11 +157,14 @@ This project was built as part of the **Consulting & Analytics Club, IIT Guwahat
 
 ---
 
-## 👤 Author
+## 👥 Author
 
-| **Yashraj Jare** |
-Mechanical Engineering, IIT Guwahati  
-[GitHub](https://github.com/yashra-jare) •
+
+| **Yashraj** | [GitHub](https://github.com/yashra-jare) |
+
+
+*IIT Guwahati*
+
 ---
 
 > *"Every segment claim must be traceable. Labels like 'at-risk' or 'high-value' are only valid if they map to a specific, stated combination of variables."*
