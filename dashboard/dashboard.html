@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Customer Intelligence Dashboard — D2C Fashion Brand</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ── Design Tokens ───────────────────────────────────────────────── */
+:root {
+  --bg:        #F7F8FA;
+  --surface:   #FFFFFF;
+  --border:    #E1E4EA;
+  --border-sm: #EEF0F4;
+  --blue-dark: #0F3460;
+  --blue:      #1A56DB;
+  --blue-mid:  #3B82F6;
+  --blue-lt:   #DBEAFE;
+  --blue-xlt:  #EFF6FF;
+  --green:     #16A34A;
+  --green-lt:  #DCFCE7;
+  --amber:     #D97706;
+  --amber-lt:  #FEF3C7;
+  --red:       #DC2626;
+  --red-lt:    #FEE2E2;
+  --text-1:    #0D1117;
+  --text-2:    #374151;
+  --text-3:    #6B7280;
+  --text-4:    #9CA3AF;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+  --shadow:    0 4px 12px rgba(0,0,0,.07);
+  --r:         8px;
+  --r-sm:      5px;
+}
+
+/* ── Reset ───────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'IBM Plex Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text-1);
+  font-size: 13px;
+  line-height: 1.5;
+  padding: 0;
+  min-height: 100vh;
+}
+
+/* ── Top Bar ──────────────────────────────────────────────────────── */
+.topbar {
+  background: var(--blue-dark);
+  padding: 0 32px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.topbar-icon {
+  width: 28px; height: 28px;
+  background: var(--blue);
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+}
+.topbar-icon svg { width: 16px; height: 16px; fill: #fff; }
+.topbar-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: 0.1px;
+}
+.topbar-sub {
+  font-size: 11px;
+  color: rgba(255,255,255,.5);
+  font-weight: 400;
+}
+.topbar-badge {
+  font-size: 11px;
+  color: rgba(255,255,255,.7);
+  background: rgba(255,255,255,.1);
+  border: 1px solid rgba(255,255,255,.15);
+  border-radius: 4px;
+  padding: 3px 10px;
+  font-family: 'IBM Plex Mono', monospace;
+  letter-spacing: 0.3px;
+}
+
+/* ── Page Wrapper ─────────────────────────────────────────────────── */
+.page { max-width: 1180px; margin: 0 auto; padding: 28px 24px 48px; }
+
+/* ── Page Header ──────────────────────────────────────────────────── */
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 22px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--border);
+}
+.page-header h1 {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-1);
+  letter-spacing: -0.2px;
+}
+.page-header .meta {
+  font-size: 12px;
+  color: var(--text-3);
+  margin-top: 3px;
+}
+.page-header .data-pill {
+  font-size: 11px;
+  background: var(--blue-xlt);
+  color: var(--blue);
+  border: 1px solid var(--blue-lt);
+  border-radius: 4px;
+  padding: 4px 10px;
+  font-family: 'IBM Plex Mono', monospace;
+  white-space: nowrap;
+}
+
+/* ── KPI Strip ────────────────────────────────────────────────────── */
+.kpi-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 22px;
+}
+.kpi {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 16px 18px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.kpi::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+.kpi.kpi-blue::before   { background: var(--blue); }
+.kpi.kpi-green::before  { background: var(--green); }
+.kpi.kpi-red::before    { background: var(--red); }
+.kpi.kpi-amber::before  { background: var(--amber); }
+.kpi-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-3); }
+.kpi-value { font-size: 30px; font-weight: 700; line-height: 1.1; margin: 6px 0 3px; color: var(--text-1); }
+.kpi-note  { font-size: 11px; color: var(--text-4); }
+
+/* ── Section Label ────────────────────────────────────────────────── */
+.section-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-3);
+  margin-bottom: 12px;
+}
+
+/* ── Panel Grid ───────────────────────────────────────────────────── */
+.panel-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 22px 24px 20px;
+  box-shadow: var(--shadow-sm);
+}
+.panel-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-sm);
+}
+.panel-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-1);
+}
+.panel-subtitle {
+  font-size: 11px;
+  color: var(--text-3);
+  margin-top: 1px;
+}
+.panel-tag {
+  font-size: 10px;
+  font-family: 'IBM Plex Mono', monospace;
+  color: var(--blue);
+  background: var(--blue-xlt);
+  border: 1px solid var(--blue-lt);
+  border-radius: 3px;
+  padding: 2px 7px;
+  white-space: nowrap;
+}
+
+/* ── Insight Callout ──────────────────────────────────────────────── */
+.insight {
+  font-size: 11px;
+  color: var(--blue-dark);
+  background: var(--blue-xlt);
+  border-left: 3px solid var(--blue);
+  border-radius: 0 4px 4px 0;
+  padding: 8px 12px;
+  margin-top: 16px;
+  line-height: 1.5;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   PANEL 1 — Customer Pyramid
+═══════════════════════════════════════════════════════════════════ */
+.pyramid-table { width: 100%; border-collapse: collapse; }
+.pyramid-table td { padding: 0; }
+.pyr-row { display: grid; grid-template-columns: 96px 1fr 90px; align-items: center; gap: 10px; margin-bottom: 10px; }
+.pyr-label { font-size: 12px; font-weight: 600; color: var(--text-2); }
+.pyr-track { background: var(--bg); border-radius: 4px; height: 28px; position: relative; overflow: hidden; }
+.pyr-fill {
+  height: 100%;
+  border-radius: 4px;
+  display: flex; align-items: center; padding: 0 10px;
+  font-size: 11px; font-weight: 700; color: #fff;
+  white-space: nowrap;
+}
+.pyr-right { text-align: right; }
+.pyr-count { font-size: 13px; font-weight: 700; color: var(--text-1); }
+.pyr-pct   { font-size: 10px; color: var(--text-3); }
+.pyr-divider { height: 1px; background: var(--border-sm); margin: 4px 0 10px; }
+.seg-legend {
+  display: flex; gap: 14px; flex-wrap: wrap; margin-top: 8px;
+}
+.seg-legend span {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 10px; color: var(--text-3);
+}
+.seg-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   PANEL 2 — Promo Dependency
+═══════════════════════════════════════════════════════════════════ */
+.seg-block { margin-bottom: 16px; }
+.seg-block:last-of-type { margin-bottom: 0; }
+.seg-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 5px; }
+.seg-name { font-size: 12px; font-weight: 600; color: var(--text-1); }
+.seg-meta { font-size: 10px; color: var(--text-4); font-family: 'IBM Plex Mono', monospace; }
+.dual-row { margin-bottom: 4px; }
+.dual-label { font-size: 10px; color: var(--text-3); margin-bottom: 2px; }
+.dual-track { background: var(--bg); border-radius: 3px; height: 16px; }
+.dual-fill {
+  height: 16px; border-radius: 3px;
+  display: flex; align-items: center; padding: 0 7px;
+  font-size: 10px; font-weight: 600; color: #fff;
+}
+.p2-legend { display: flex; gap: 18px; margin-top: 12px; }
+.p2-legend span {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 10px; color: var(--text-3);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   PANEL 3 — Geography
+═══════════════════════════════════════════════════════════════════ */
+.geo-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.geo-table thead th {
+  padding: 0 8px 8px;
+  text-align: left;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-3);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+.geo-table thead th:not(:first-child) { text-align: right; }
+.geo-table tbody td {
+  padding: 7px 8px;
+  border-bottom: 1px solid var(--border-sm);
+  color: var(--text-2);
+}
+.geo-table tbody td:not(:first-child) { text-align: right; font-family: 'IBM Plex Mono', monospace; font-size: 11px; }
+.geo-table tbody tr:hover td { background: var(--bg); }
+.geo-table tbody tr.hl td { background: var(--blue-xlt); font-weight: 600; color: var(--blue-dark); }
+.geo-table tbody tr.hl td:first-child::before { content: '★ '; color: var(--blue); font-size: 10px; }
+.class-tag {
+  display: inline-flex; align-items: center;
+  padding: 2px 7px; border-radius: 10px;
+  font-size: 10px; font-weight: 600;
+  font-family: 'IBM Plex Sans', sans-serif;
+}
+.t-opp  { background: var(--green-lt); color: #15803d; }
+.t-disc { background: var(--red-lt);   color: #b91c1c; }
+.t-mod  { background: var(--bg);       color: var(--text-3); border: 1px solid var(--border); }
+.geo-highlight-box {
+  background: var(--blue-xlt);
+  border: 1px solid var(--blue-lt);
+  border-radius: var(--r-sm);
+  padding: 10px 12px;
+  margin-bottom: 14px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 12px;
+}
+.geo-hl-item .lbl { font-size: 10px; color: var(--text-3); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.geo-hl-item .val { font-size: 15px; font-weight: 700; color: var(--blue-dark); font-family: 'IBM Plex Mono', monospace; }
+.geo-hl-item .sub { font-size: 10px; color: var(--text-4); }
+
+/* ═══════════════════════════════════════════════════════════════════
+   PANEL 4 — Category Funnel
+═══════════════════════════════════════════════════════════════════ */
+.cat-block { margin-bottom: 15px; }
+.cat-block:last-child { margin-bottom: 0; }
+.cat-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.cat-name { font-size: 12px; font-weight: 700; color: var(--text-1); }
+.cat-pill {
+  font-size: 10px; font-weight: 600;
+  padding: 1px 8px; border-radius: 10px;
+}
+.cat-retention { background: var(--blue-xlt); color: var(--blue); }
+.cat-entry     { background: var(--amber-lt); color: var(--amber); }
+.cat-metrics { display: flex; gap: 14px; margin-bottom: 5px; }
+.cat-metric { font-size: 10px; color: var(--text-3); }
+.cat-metric strong { color: var(--text-1); font-size: 11px; }
+.cat-track { background: var(--bg); border-radius: 3px; height: 14px; margin-bottom: 3px; }
+.cat-fill { height: 14px; border-radius: 3px; }
+.cat-row-label { font-size: 10px; color: var(--text-4); margin-bottom: 2px; }
+.cat-legend {
+  display: flex; gap: 16px; margin-top: 10px;
+  padding-top: 10px; border-top: 1px solid var(--border-sm);
+}
+.cat-legend span { font-size: 10px; color: var(--text-3); display: flex; align-items: center; gap: 5px; }
+
+/* ── Footer ───────────────────────────────────────────────────────── */
+.footer {
+  max-width: 1180px; margin: 20px auto 0; padding: 14px 24px 0;
+  border-top: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.footer-left { font-size: 10px; color: var(--text-4); line-height: 1.7; }
+.footer-right {
+  font-size: 10px;
+  color: var(--blue);
+  font-family: 'IBM Plex Mono', monospace;
+  text-align: right;
+}
+</style>
+</head>
+<body>
+
+<!-- Top Bar -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="topbar-icon">
+      <svg viewBox="0 0 20 20"><rect x="2" y="2" width="7" height="7" rx="1.5"/><rect x="11" y="2" width="7" height="7" rx="1.5"/><rect x="2" y="11" width="7" height="7" rx="1.5"/><rect x="11" y="11" width="7" height="7" rx="1.5"/></svg>
+    </div>
+    <div>
+      <div class="topbar-title">Customer Intelligence Dashboard</div>
+      <div class="topbar-sub">D2C Fashion Brand · United States</div>
+    </div>
+  </div>
+  <div class="topbar-badge">SQL Consulting &amp; Analytics Club · IIT Guwahati</div>
+</div>
+
+<div class="page">
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <h1>Decoding Customer Value: Retention Strategy Overview</h1>
+      <div class="meta">Loyalty_B metric (Frequency × Purchase History) · Promo Dependency Score · Organic Buyer classification</div>
+    </div>
+    <div class="data-pill">n = 3,900 customers</div>
+  </div>
+
+  <!-- KPI Strip -->
+  <div class="kpi-strip">
+    <div class="kpi kpi-green">
+      <div class="kpi-label">Organic Buyers</div>
+      <div class="kpi-value">57%</div>
+      <div class="kpi-note">2,223 of 3,900 · no discount, no promo</div>
+    </div>
+    <div class="kpi kpi-red">
+      <div class="kpi-label">Promo-Dependent</div>
+      <div class="kpi-value">43%</div>
+      <div class="kpi-note">1,677 customers · discount or promo used</div>
+    </div>
+    <div class="kpi kpi-amber">
+      <div class="kpi-label">Sunset Candidates</div>
+      <div class="kpi-value">413</div>
+      <div class="kpi-note">Loyal + promo-dependent · recoverable margin</div>
+    </div>
+    <div class="kpi kpi-blue">
+      <div class="kpi-label">Champion Customers</div>
+      <div class="kpi-value">279</div>
+      <div class="kpi-note">7.2% of base · highest frequency &amp; tenure</div>
+    </div>
+  </div>
+
+  <div class="section-label">Four-Panel Analysis</div>
+
+  <!-- 4-Panel Grid -->
+  <div class="panel-grid">
+
+    <!-- ── PANEL 1: Customer Pyramid ──────────────────────────────── -->
+    <div class="panel">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">Customer Pyramid</div>
+          <div class="panel-subtitle">Loyalty segment distribution · Loyalty_B = Frequency × Purchase History</div>
+        </div>
+        <div class="panel-tag">Panel 1</div>
+      </div>
+
+      <div class="pyr-row">
+        <div class="pyr-label">Champion</div>
+        <div class="pyr-track">
+          <div class="pyr-fill" style="width:7.2%;background:var(--blue-dark);">7.2%</div>
+        </div>
+        <div class="pyr-right">
+          <div class="pyr-count">279</div>
+          <div class="pyr-pct">52× / yr avg</div>
+        </div>
+      </div>
+
+      <div class="pyr-row">
+        <div class="pyr-label">Established</div>
+        <div class="pyr-track">
+          <div class="pyr-fill" style="width:24%;background:var(--blue);">24.0%</div>
+        </div>
+        <div class="pyr-right">
+          <div class="pyr-count">937</div>
+          <div class="pyr-pct">30× / yr avg</div>
+        </div>
+      </div>
+
+      <div class="pyr-row">
+        <div class="pyr-label">Developing</div>
+        <div class="pyr-track">
+          <div class="pyr-fill" style="width:43.8%;background:var(--blue-mid);">43.8%</div>
+        </div>
+        <div class="pyr-right">
+          <div class="pyr-count">1,709</div>
+          <div class="pyr-pct">12× / yr avg</div>
+        </div>
+      </div>
+
+      <div class="pyr-row">
+        <div class="pyr-label">Low</div>
+        <div class="pyr-track">
+          <div class="pyr-fill" style="width:25%;background:#93C5FD; color:var(--blue-dark);">25.0%</div>
+        </div>
+        <div class="pyr-right">
+          <div class="pyr-count">975</div>
+          <div class="pyr-pct">5× / yr avg</div>
+        </div>
+      </div>
+
+      <div class="seg-legend">
+        <span><span class="seg-dot" style="background:var(--blue-dark);"></span>Champion (7.2%)</span>
+        <span><span class="seg-dot" style="background:var(--blue);"></span>Established (24.0%)</span>
+        <span><span class="seg-dot" style="background:var(--blue-mid);"></span>Developing (43.8%)</span>
+        <span><span class="seg-dot" style="background:#93C5FD;border:1px solid var(--blue-lt);"></span>Low (25.0%)</span>
+      </div>
+
+      <div class="insight">
+        Champion + Established = <strong>31.2%</strong> of the base (1,216 customers).
+        Graduating Developing customers upward is the brand's primary retention lever —
+        not new acquisition alone.
+      </div>
+    </div>
+
+    <!-- ── PANEL 2: Promo Dependency vs Organic ───────────────────── -->
+    <div class="panel">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">Promo Dependency vs Organic Buyers</div>
+          <div class="panel-subtitle">By loyalty segment · avg spend and frequency shown</div>
+        </div>
+        <div class="panel-tag">Panel 2</div>
+      </div>
+
+      <div class="seg-block">
+        <div class="seg-head">
+          <span class="seg-name">Champion</span>
+          <span class="seg-meta">279 customers · $58.73 avg · 52×/yr</span>
+        </div>
+        <div class="dual-row">
+          <div class="dual-label">Promo Dependency</div>
+          <div class="dual-track"><div class="dual-fill" style="width:44.8%;background:var(--red);">44.8%</div></div>
+        </div>
+        <div class="dual-row">
+          <div class="dual-label">Organic Buyers</div>
+          <div class="dual-track"><div class="dual-fill" style="width:55.2%;background:var(--green);">55.2%</div></div>
+        </div>
+      </div>
+
+      <div class="seg-block">
+        <div class="seg-head">
+          <span class="seg-name">Established</span>
+          <span class="seg-meta">937 customers · $60.14 avg · 30×/yr</span>
+        </div>
+        <div class="dual-row">
+          <div class="dual-label">Promo Dependency</div>
+          <div class="dual-track"><div class="dual-fill" style="width:44.1%;background:var(--red);">44.1%</div></div>
+        </div>
+        <div class="dual-row">
+          <div class="dual-label">Organic Buyers</div>
+          <div class="dual-track"><div class="dual-fill" style="width:55.9%;background:var(--green);">55.9%</div></div>
+        </div>
+      </div>
+
+      <div class="seg-block">
+        <div class="seg-head">
+          <span class="seg-name">Developing</span>
+          <span class="seg-meta">1,709 customers · $59.47 avg · 12×/yr</span>
+        </div>
+        <div class="dual-row">
+          <div class="dual-label">Promo Dependency</div>
+          <div class="dual-track"><div class="dual-fill" style="width:41.7%;background:var(--amber);">41.7%</div></div>
+        </div>
+        <div class="dual-row">
+          <div class="dual-label">Organic Buyers</div>
+          <div class="dual-track"><div class="dual-fill" style="width:58.3%;background:#65a30d;">58.3%</div></div>
+        </div>
+      </div>
+
+      <div class="seg-block">
+        <div class="seg-head">
+          <span class="seg-name">Low</span>
+          <span class="seg-meta">975 customers · $60.21 avg · 5×/yr</span>
+        </div>
+        <div class="dual-row">
+          <div class="dual-label">Promo Dependency</div>
+          <div class="dual-track"><div class="dual-fill" style="width:43.7%;background:var(--amber);">43.7%</div></div>
+        </div>
+        <div class="dual-row">
+          <div class="dual-label">Organic Buyers</div>
+          <div class="dual-track"><div class="dual-fill" style="width:56.3%;background:#65a30d;">56.3%</div></div>
+        </div>
+      </div>
+
+      <div class="p2-legend">
+        <span><span style="display:inline-block;width:10px;height:10px;background:var(--red);border-radius:2px;"></span>Promo Dependency %</span>
+        <span><span style="display:inline-block;width:10px;height:10px;background:var(--green);border-radius:2px;"></span>Organic Buyer %</span>
+      </div>
+
+      <div class="insight">
+        <strong>413 Champion + Established customers</strong> are promo-dependent despite showing
+        strong repeat-purchase signals. These are the primary sunset candidates — their
+        frequency and purchase history suggest a meaningful probability of retention
+        without discount incentives.
+      </div>
+    </div>
+
+    <!-- ── PANEL 3: Geographic Opportunity ───────────────────────── -->
+    <div class="panel">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">Geographic Opportunity Analysis</div>
+          <div class="panel-subtitle">Top 14 states by avg spend · High Opportunity = high spend + low promo dependency</div>
+        </div>
+        <div class="panel-tag">Panel 3</div>
+      </div>
+
+      <!-- Arizona highlight box -->
+      <div class="geo-highlight-box">
+        <div class="geo-hl-item">
+          <div class="lbl">Priority State</div>
+          <div class="val" style="font-size:18px;font-family:'IBM Plex Sans',sans-serif;letter-spacing:-0.5px;">Arizona</div>
+          <div class="sub">Only High Opportunity state</div>
+        </div>
+        <div class="geo-hl-item">
+          <div class="lbl">Avg Spend</div>
+          <div class="val">$66.55</div>
+          <div class="sub">Above dataset avg</div>
+        </div>
+        <div class="geo-hl-item">
+          <div class="lbl">Promo Dep.</div>
+          <div class="val">33.8%</div>
+          <div class="sub">Lowest in top tier</div>
+        </div>
+        <div class="geo-hl-item">
+          <div class="lbl">Organic Rate</div>
+          <div class="val">66.2%</div>
+          <div class="sub">Highest in top tier</div>
+        </div>
+      </div>
+
+      <table class="geo-table">
+        <thead>
+          <tr>
+            <th>State</th>
+            <th>Avg Spend</th>
+            <th>Promo Dep %</th>
+            <th>Organic %</th>
+            <th>Classification</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Alaska</td><td>$67.60</td><td>40.3%</td><td>59.7%</td><td><span class="class-tag t-mod">Moderate</span></td></tr>
+          <tr class="hl"><td>Arizona</td><td>$66.55</td><td>33.8%</td><td>66.2%</td><td><span class="class-tag t-opp">High Opportunity</span></td></tr>
+          <tr><td>Pennsylvania</td><td>$66.57</td><td>44.6%</td><td>55.4%</td><td><span class="class-tag t-mod">Moderate</span></td></tr>
+          <tr><td>West Virginia</td><td>$63.88</td><td>49.4%</td><td>50.6%</td><td><span class="class-tag t-disc">Discount Dependent</span></td></tr>
+          <tr><td>Virginia</td><td>$62.88</td><td>37.7%</td><td>62.3%</td><td><span class="class-tag t-mod">Moderate</span></td></tr>
+          <tr><td>Tennessee</td><td>$61.97</td><td>36.4%</td><td>63.6%</td><td><span class="class-tag t-mod">Moderate</span></td></tr>
+          <tr><td>Texas</td><td>$61.19</td><td>36.4%</td><td>63.6%</td><td><span class="class-tag t-mod">Moderate</span></td></tr>
+          <tr><td>Michigan</td><td>$62.10</td><td>39.7%</td><td>60.3%</td><td><span class="class-tag t-mod">Moderate</span></td></tr>
+          <tr><td>Nevada</td><td>$63.38</td><td>47.1%</td><td>52.9%</td><td><span class="class-tag t-mod">Moderate</span></td></tr>
+          <tr><td>Washington</td><td>$63.33</td><td>43.8%</td><td>56.2%</td><td><span class="class-tag t-mod">Moderate</span></td></tr>
+          <tr><td>Illinois</td><td>$61.05</td><td>40.2%</td><td>59.8%</td><td><span class="class-tag t-mod">Moderate</span></td></tr>
+          <tr><td>Rhode Island</td><td>$61.44</td><td>39.7%</td><td>60.3%</td><td><span class="class-tag t-mod">Moderate</span></td></tr>
+          <tr><td>Utah</td><td>$62.58</td><td>46.5%</td><td>53.5%</td><td><span class="class-tag t-mod">Moderate</span></td></tr>
+          <tr><td>North Dakota</td><td>$62.89</td><td>45.8%</td><td>54.2%</td><td><span class="class-tag t-mod">Moderate</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ── PANEL 4: Category Funnel ───────────────────────────────── -->
+    <div class="panel">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">Category Funnel</div>
+          <div class="panel-subtitle">Purchase history as retention proxy · promo dependency by category</div>
+        </div>
+        <div class="panel-tag">Panel 4</div>
+      </div>
+
+      <div class="cat-block">
+        <div class="cat-head">
+          <span class="cat-name">Accessories</span>
+          <span class="cat-pill cat-retention">Retention Signal</span>
+        </div>
+        <div class="cat-metrics">
+          <span class="cat-metric">Prev. Purchases: <strong>25.7</strong></span>
+          <span class="cat-metric">Promo Dep: <strong>43.8%</strong></span>
+          <span class="cat-metric">Avg Spend: <strong>$59.84</strong></span>
+          <span class="cat-metric">Share: <strong>31.8%</strong></span>
+        </div>
+        <div class="cat-row-label">Purchase History (relative)</div>
+        <div class="cat-track"><div class="cat-fill" style="width:90%;background:var(--blue-dark);"></div></div>
+        <div class="cat-row-label">Promo Dependency</div>
+        <div class="cat-track"><div class="cat-fill" style="width:43.8%;background:#FCA5A5;"></div></div>
+      </div>
+
+      <div class="cat-block">
+        <div class="cat-head">
+          <span class="cat-name">Clothing</span>
+          <span class="cat-pill cat-retention">Lowest Promo Dep.</span>
+        </div>
+        <div class="cat-metrics">
+          <span class="cat-metric">Prev. Purchases: <strong>25.2</strong></span>
+          <span class="cat-metric">Promo Dep: <strong>42.1%</strong></span>
+          <span class="cat-metric">Avg Spend: <strong>$60.03</strong></span>
+          <span class="cat-metric">Share: <strong>44.5%</strong></span>
+        </div>
+        <div class="cat-row-label">Purchase History (relative)</div>
+        <div class="cat-track"><div class="cat-fill" style="width:75%;background:var(--blue);"></div></div>
+        <div class="cat-row-label">Promo Dependency</div>
+        <div class="cat-track"><div class="cat-fill" style="width:42.1%;background:#FCA5A5;"></div></div>
+      </div>
+
+      <div class="cat-block">
+        <div class="cat-head">
+          <span class="cat-name">Footwear</span>
+          <span class="cat-pill cat-retention">Highest Spend</span>
+        </div>
+        <div class="cat-metrics">
+          <span class="cat-metric">Prev. Purchases: <strong>25.2</strong></span>
+          <span class="cat-metric">Promo Dep: <strong>43.2%</strong></span>
+          <span class="cat-metric">Avg Spend: <strong>$60.26</strong></span>
+          <span class="cat-metric">Share: <strong>15.4%</strong></span>
+        </div>
+        <div class="cat-row-label">Purchase History (relative)</div>
+        <div class="cat-track"><div class="cat-fill" style="width:75%;background:var(--blue-mid);"></div></div>
+        <div class="cat-row-label">Promo Dependency</div>
+        <div class="cat-track"><div class="cat-fill" style="width:43.2%;background:#FCA5A5;"></div></div>
+      </div>
+
+      <div class="cat-block">
+        <div class="cat-head">
+          <span class="cat-name">Outerwear</span>
+          <span class="cat-pill cat-entry">Entry-Point / Seasonal</span>
+        </div>
+        <div class="cat-metrics">
+          <span class="cat-metric">Prev. Purchases: <strong>25.0</strong></span>
+          <span class="cat-metric">Promo Dep: <strong>44.4%</strong></span>
+          <span class="cat-metric">Avg Spend: <strong>$57.17</strong></span>
+          <span class="cat-metric">Share: <strong>8.3%</strong></span>
+        </div>
+        <div class="cat-row-label">Purchase History (relative)</div>
+        <div class="cat-track"><div class="cat-fill" style="width:65%;background:#7C3AED;"></div></div>
+        <div class="cat-row-label">Promo Dependency</div>
+        <div class="cat-track"><div class="cat-fill" style="width:44.4%;background:#FCA5A5;"></div></div>
+      </div>
+
+      <div class="cat-legend">
+        <span><span style="display:inline-block;width:24px;height:8px;background:var(--blue-dark);border-radius:2px;"></span>Accessories</span>
+        <span><span style="display:inline-block;width:24px;height:8px;background:var(--blue);border-radius:2px;"></span>Clothing</span>
+        <span><span style="display:inline-block;width:24px;height:8px;background:var(--blue-mid);border-radius:2px;"></span>Footwear</span>
+        <span><span style="display:inline-block;width:24px;height:8px;background:#7C3AED;border-radius:2px;"></span>Outerwear</span>
+        <span><span style="display:inline-block;width:24px;height:8px;background:#FCA5A5;border-radius:2px;"></span>Promo Dep.</span>
+      </div>
+
+      <div class="insight">
+        Outerwear shows the lowest purchase history and highest Promo Dependency of all
+        categories — directionally consistent with a seasonal or entry-point role.
+        Clothing carries the lowest Promo Dependency, suggesting the strongest organic
+        demand signal across categories.
+      </div>
+    </div>
+
+  </div><!-- /panel-grid -->
+</div><!-- /page -->
+
+<!-- Footer -->
+<div class="footer">
+  <div class="footer-left">
+    Loyalty metric: Loyalty_B = normalised(Frequency Score) + normalised(Previous Purchases) / 2 &nbsp;·&nbsp;
+    Promo Dependency: avg(Discount Applied, Promo Code Used) × 100<br>
+    Organic Buyer: Discount Applied = No AND Promo Code Used = No &nbsp;·&nbsp;
+    Segments: Champion (&gt;75) · Established (50–75) · Developing (25–50) · Low (0–25)
+  </div>
+  <div class="footer-right">
+    SQL Consulting &amp; Analytics Club<br>IIT Guwahati · 2025
+  </div>
+</div>
+
+</body>
+</html>
